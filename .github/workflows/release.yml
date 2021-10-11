@@ -18,8 +18,8 @@ jobs:
           fetch-depth: 0
       - name: Check token
         run: |
-          if [ -z "${{ secrets.WASP_GITHUB_TOKEN }}"]; then
-            echo "Must provide a WASP_GITHUB_TOKEN secret in order to run release workflow"
+          if [ -z "${{ secrets.GITHUB_TOKEN }}"]; then
+            echo "Must provide a GITHUB_TOKEN secret in order to run release workflow"
             exit 1
           fi
       - name: Get repository identifiers
@@ -218,7 +218,7 @@ jobs:
         with:
           registry: ghcr.io
           username: $GITHUB_ACTOR
-          password: ${{ secrets.WASP_GITHUB_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish multi-arch image
         uses: docker/build-push-action@v2
         with:
@@ -243,21 +243,21 @@ jobs:
       - name: Publish Helm charts
         uses: stefanprodan/helm-gh-pages@master
         with:
-          token: ${{ secrets.WASP_GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           charts_dir: helm
 
       # Build github release
       - name: Build release version
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          repo_token: "${{ secrets.WASP_GITHUB_TOKEN }}"
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: ${{ needs.check-version.outputs.version }}
           prerelease: false
           title: Release ${{ needs.check-version.outputs.version }}
       - name: Build release latest
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          repo_token: "${{ secrets.WASP_GITHUB_TOKEN }}"
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: latest
           prerelease: false
           title: Latest Release ${{ needs.check-version.outputs.version }}
