@@ -1,0 +1,8 @@
+kafka:
+  enabled: true
+image:
+  repository: 'wasp-ws-reading-service'
+  tag: 'latest'
+  PullPolicy: Never
+config:
+  kafkaBrokers: null

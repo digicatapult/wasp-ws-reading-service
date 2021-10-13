@@ -1,10 +1,24 @@
 const express = require('express')
+const expressWS = require('express-ws')
 const pinoHttp = require('pino-http')
-const { PORT } = require('./env')
+
+const docs = require('./api-v1/docs')
+const { PORT, API_MAJOR_VERSION, WS_PING_INTERVAL_MS } = require('./env')
 const logger = require('./logger')
+const setupReadingsConsumer = require('./readingsConsumer')
+
+const clients = new Map()
+
+const ipFromReq = (req) => {
+  if (req.headers['x-forwarded-for']) {
+    return req.headers['x-forwarded-for'].split(',')[0].trim()
+  }
+  return req.socket.remoteAddress
+}
 
 async function createHttpServer() {
-  const app = express()
+  const expressWs = expressWS(express())
+  const app = expressWs.app
   const requestLogger = pinoHttp({ logger })
 
   app.use((req, res, next) => {
@@ -16,7 +30,45 @@ async function createHttpServer() {
     res.status(200).send({ status: 'ok' })
   })
 
-  // Sorry - app.use checks arity
+  app.get('/async-docs', async (req, res) => {
+    const asyncApi = await docs
+    res.status(200).send(asyncApi)
+  })
+
+  app.ws(`/${API_MAJOR_VERSION}/thing/:thingId/dataset/:datasetId/reading`, function (ws, req) {
+    const ip = ipFromReq(req)
+    logger.debug(`Connect established from %s`, ip)
+
+    const { thingId, datasetId } = req.params
+    const key = JSON.stringify({ thingId, datasetId })
+
+    if (clients.has(key)) clients.get(key).add(ws)
+    else clients.set(key, new Set().add(ws))
+
+    ws.on('message', (msg) => logger.info(msg))
+
+    // setup a ping interval as there may an arbitrarily long delay between messages
+    let isAlive = true
+    ws.on('pong', () => {
+      isAlive = true
+    })
+    const interval = setInterval(function wsHeartbeat() {
+      if (!isAlive) ws.terminate()
+
+      isAlive = false
+      ws.ping('heartbeat')
+    }, WS_PING_INTERVAL_MS)
+
+    ws.on('close', () => {
+      const set = clients.get(key)
+      set.delete(ws)
+      clients.set(key, set)
+      clearInterval(interval)
+
+      logger.debug(`Connection closed from ${ip}. ${clients.get(key).size} remaining`)
+    })
+  })
+
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
     if (err.status) {
@@ -27,16 +79,40 @@ async function createHttpServer() {
     }
   })
 
-  return { app }
+  const readingsConsumer = await setupReadingsConsumer({
+    forwardParams: (datasetId, value) => {
+      const { dataset, reading } = value
+      const { thingId } = dataset
+
+      const key = JSON.stringify({ thingId, datasetId })
+      logger.info(`Broadcasting to ${key}`)
+
+      const matches = clients.get(key)
+
+      if (matches) {
+        logger.info(`${matches.size} matching clients`)
+        matches.forEach((client) => {
+          if (client.OPEN) client.send(JSON.stringify(reading))
+          else client.close()
+        })
+      } else {
+        logger.info(`No matching clients`)
+      }
+    },
+  })
+
+  return { app, readingsConsumer }
 }
 
 /* istanbul ignore next */
 async function startServer() {
   try {
-    const { app } = await createHttpServer()
+    const { app, readingsConsumer } = await createHttpServer()
 
     const setupGracefulExit = ({ sigName, server, exitCode }) => {
       process.on(sigName, async () => {
+        await readingsConsumer.disconnect()
+
         server.close(() => {
           process.exit(exitCode)
         })
@@ -58,6 +134,7 @@ async function startServer() {
           resolve(server)
         }
       })
+
       server.on('error', (err) => {
         if (!resolved) {
           resolved = true

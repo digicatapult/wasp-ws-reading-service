@@ -6,9 +6,9 @@ set -e
 function check_versions_consistent () {
   local PACKAGE_VERSION=$(yq eval '.version' ./package.json)
   local PACKAGE_LOCK_VERSION=$(yq eval '.version' ./package-lock.json)
-  local HELM_VALUES_TAG_VERSION=$(yq eval '.image.tag' ./helm/wasp-service-template/values.yaml)
-  local HELM_CHART_VERSION=$(yq eval '.version' ./helm/wasp-service-template/Chart.yaml)
-  local HELM_CHART_APP_VERSION=$(yq eval '.appVersion' ./helm/wasp-service-template/Chart.yaml)
+  local HELM_VALUES_TAG_VERSION=$(yq eval '.image.tag' ./helm/wasp-ws-reading-service/values.yaml)
+  local HELM_CHART_VERSION=$(yq eval '.version' ./helm/wasp-ws-reading-service/Chart.yaml)
+  local HELM_CHART_APP_VERSION=$(yq eval '.appVersion' ./helm/wasp-ws-reading-service/Chart.yaml)
 
   if [ "$PACKAGE_VERSION" != "$PACKAGE_LOCK_VERSION" ] ||
      [ "v$PACKAGE_VERSION" != "$HELM_VALUES_TAG_VERSION" ] ||
@@ -51,7 +51,7 @@ PUBLISHED_VERSIONS=$(git tag | grep "^v[0-9]\+\.[0-9]\+\.[0-9]\+\(\-[a-zA-Z-]\+\
 # Get the current version from package.json
 CURRENT_VERSION=$(yq eval '.version' ./package.json)
 
-if check_version_greater "$CURRENT_VERSION" "$PUBLISHED_VERSIONS"; then
+if check_version_greater $CURRENT_VERSION $PUBLISHED_VERSIONS; then
   echo "##[set-output name=VERSION;]v$CURRENT_VERSION"
   echo "##[set-output name=BUILD_DATE;]$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
   echo "##[set-output name=IS_NEW_VERSION;]true"
