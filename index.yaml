@@ -1,0 +1,23 @@
+apiVersion: v1
+entries:
+  wasp-ws-reading-service:
+  - apiVersion: v2
+    appVersion: 0.0.8
+    created: "2021-10-15T15:43:27.348282285Z"
+    dependencies:
+    - condition: kafka.enabled
+      name: kafka
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.7.3
+    description: A Helm chart for wasp-ws-reading-service
+    digest: 512fb5bb00c90a75b6ee0cf7046bfc18d7a78823493faca10c5edfccbf15b8b8
+    maintainers:
+    - email: opensource@digicatapult.org.uk
+      name: digicatapult
+      url: www.digicatapult.org.uk
+    name: wasp-ws-reading-service
+    type: application
+    urls:
+    - https://digicatapult.github.io/wasp-ws-reading-service/wasp-ws-reading-service-0.0.8.tgz
+    version: 0.0.8
+generated: "2021-10-15T15:43:27.337957108Z"
