@@ -1,11 +1,12 @@
-const express = require('express')
-const expressWS = require('express-ws')
-const pinoHttp = require('pino-http')
+import express from 'express'
+import expressWS from 'express-ws'
+import pinoHttp from 'pino-http'
+import docs from './api-v1/docs.js'
+import env from './env.js'
+import logger from './logger.js'
+import setupReadingsConsumer from './readingsConsumer.js'
 
-const docs = require('./api-v1/docs')
-const { PORT, API_MAJOR_VERSION, WS_PING_INTERVAL_MS } = require('./env')
-const logger = require('./logger')
-const setupReadingsConsumer = require('./readingsConsumer')
+const { PORT, WS_PING_INTERVAL_MS } = env
 
 const clients = new Map()
 
@@ -35,7 +36,7 @@ async function createHttpServer() {
     res.status(200).send(asyncApi)
   })
 
-  app.ws(`/${API_MAJOR_VERSION}/thing/:thingId/dataset/:datasetId/reading`, function (ws, req) {
+  app.ws(`/v1/thing/:thingId/dataset/:datasetId/reading`, function (ws, req) {
     const ip = ipFromReq(req)
     logger.debug(`Connect established from %s`, ip)
 
@@ -151,4 +152,4 @@ async function startServer() {
   }
 }
 
-module.exports = { startServer, createHttpServer }
+export { startServer, createHttpServer }

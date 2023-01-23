@@ -36,7 +36,6 @@ npm test
 | :-------------------------------- | :------: | :--------------------: | :--------------------------------------------------------------------------------------------------- |
 | LOG_LEVEL                         |    N     |         `info`         | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`]                 |
 | PORT                              |    N     |          `80`          | Port on which the service will listen                                                                |
-| API_MAJOR_VERSION                 |    N     |           `v1`         | Major version of this service                                                                        |
 | KAFKA_LOG_LEVEL                   |    N     |       `nothing`        | Log level to use for the Kafka connection. Choices are `debug`, `info`, `warn`, `error` or `nothing` |
 | KAFKA_BROKERS                     |    N     |    `localhost:9092`    | Comma separated list of Kafka brokers to connect to                                                  |
 | KAFKA_NOTIFICATION_READINGS_TOPIC |    N     | `reading-notification` | Topic to listen for new reading notifications                                                        |
