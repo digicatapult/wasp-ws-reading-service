@@ -1,12 +1,14 @@
 /* eslint-disable no-console */
-const { describe, before, it } = require('mocha')
-const { expect } = require('chai')
-const ws = require('ws')
-const delay = require('delay')
+import { describe, before, it } from 'mocha'
+import { expect } from 'chai'
+import ws from 'ws'
+import delay from 'delay'
 
-const { setupRealServer, setupKafka } = require('./helper/setupHelper.js')
-const { sendRawPayload } = require('./helper/streamingHelper')
-const { KAFKA_READINGS_NOTIFICATIONS_TOPIC, PORT, API_MAJOR_VERSION } = require('../../app/env')
+import { setupRealServer, setupKafka } from './helper/setupHelper.js'
+import { sendRawPayload } from './helper/streamingHelper.js'
+import env from '../../app/env.js'
+
+const { KAFKA_READINGS_NOTIFICATIONS_TOPIC, PORT } = env
 
 const topic = KAFKA_READINGS_NOTIFICATIONS_TOPIC
 
@@ -28,12 +30,9 @@ describe('Websockets', async function () {
 
       // Connect clients
       context.clients.push(
-        new ws(`ws://localhost:${PORT}/${API_MAJOR_VERSION}/thing/thing-id/dataset/dataset-id/reading`).on(
-          'message',
-          (msg) => {
-            context.streamedData.push(Buffer.from(msg).toString())
-          }
-        )
+        new ws(`ws://localhost:${PORT}/v1/thing/thing-id/dataset/dataset-id/reading`).on('message', (msg) => {
+          context.streamedData.push(Buffer.from(msg).toString())
+        })
       )
 
       // Broadcast messages
@@ -66,10 +65,10 @@ describe('Websockets', async function () {
 
       // Connect clients
       context.clients.push(
-        new ws(`ws://localhost:${PORT}/${API_MAJOR_VERSION}/thing/123/dataset/abc/reading`).on('message', (msg) => {
+        new ws(`ws://localhost:${PORT}/v1/thing/123/dataset/abc/reading`).on('message', (msg) => {
           context.streamedData.push(Buffer.from(msg).toString())
         }),
-        new ws(`ws://localhost:${PORT}/${API_MAJOR_VERSION}/thing/123/dataset/abc/reading`).on('message', (msg) => {
+        new ws(`ws://localhost:${PORT}/v1/thing/123/dataset/abc/reading`).on('message', (msg) => {
           context.streamedData.push(Buffer.from(msg).toString())
         })
       )
