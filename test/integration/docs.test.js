@@ -16,6 +16,6 @@ describe('async-docs', function () {
   })
 
   it('successfully returns the asyncapi docs json', function () {
-    expect(JSON.stringify(context.response.body)).to.include('asyncapi')
+    expect(context.response.body).to.have.nested.property('_json.asyncapi')
   })
 })
