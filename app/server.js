@@ -1,7 +1,7 @@
 import express from 'express'
 import expressWS from 'express-ws'
 import pinoHttp from 'pino-http'
-import docs from './api-v1/docs.js'
+import document from './api-v1/docs.js'
 import env from './env.js'
 import logger from './logger.js'
 import setupReadingsConsumer from './readingsConsumer.js'
@@ -32,7 +32,7 @@ async function createHttpServer() {
   })
 
   app.get('/async-docs', async (req, res) => {
-    const asyncApi = await docs
+    const asyncApi = await document
     res.status(200).send(asyncApi)
   })
 
