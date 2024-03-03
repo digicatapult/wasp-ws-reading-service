@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/wasp-ws-reading-service",
-  "version": "1.0.62",
+  "version": "1.0.63",
   "description": "Service for WASP",
   "main": "app/index.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "@asyncapi/parser": "^2.1.2",
     "dotenv": "^16.4.5",
     "envalid": "^8.0.0",
-    "express": "^4.18.2",
+    "express": "^4.18.3",
     "express-ws": "^5.0.2",
     "kafkajs": "^2.2.4",
     "pino": "^8.19.0",
