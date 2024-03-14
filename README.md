@@ -1,5 +1,9 @@
 # wasp-ws-reading-service
 
+## Deprecation Notice
+`WASP` was deprecated on March 14th 2024, there will be no further dependency or security updates to this platform.
+---
+
 WebSocket connection for the [wasp-reading-service](https://github.com/digicatapult/wasp-reading-service).
 
 ## Getting started
